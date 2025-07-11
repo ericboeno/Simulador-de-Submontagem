@@ -1,0 +1,1058 @@
+/* style.css */
+
+/* Definindo a cor principal "vinho" e o contraste */
+:root {
+    --primary-red-rgb: 186, 0, 0; /* RGB para #ba0000 */
+    --primary-red: #ba0000; /* Cor vermelha do fundo da imagem 2 */
+    --secondary-red: #8f0000; /* Um tom mais escuro para hover/destaque */
+    --dark-background: #00000042;
+    --light-text: #f0f0f0;
+    --medium-gray: #444;
+    --light-gray: #2c2c2c;
+
+    /* Novas cores para o pente */
+    --clamp-blue: #007bff; /* Azul para "baixar" */
+    --clamp-green: #28a745; /* Verde para "puxar" */
+    --clamp-border-empty: #555;
+    --clamp-background-empty: rgba(255, 255, 255, 0.05);
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    background-color: var(--dark-background);
+    color: var(--light-text);
+    overflow-x: hidden; /* Evita rolagem horizontal indesejada no body */
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Estilo para o logo Yazaki */
+.yazaki-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 500px;
+    height: auto;
+    z-index: 100;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.yazaki-logo:hover {
+    opacity: 1;
+}
+
+h1 {
+    color: var(--primary-red);
+    margin-bottom: 25px;
+    font-weight: 700;
+    font-size: 2.5em;
+    letter-spacing: 1px;
+}
+
+h2 {
+    color: var(--light-text);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.controls {
+    margin-bottom: 30px;
+    padding: 20px 30px;
+    background-color: var(--light-gray);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.controls label {
+    font-weight: bold;
+    color: var(--primary-red);
+    font-size: 1.1em;
+}
+
+.controls select,
+.controls button,
+.controls input {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--medium-gray);
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #3a3a3a;
+    color: var(--light-text);
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.controls input::placeholder {
+    color: #aaa;
+}
+
+.controls .separator {
+    color: #555;
+    font-size: 1.8rem;
+}
+
+.controls button {
+    background-color: var(--primary-red);
+    color: white;
+    border-color: var(--primary-red);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.controls button:hover {
+    background-color: var(--secondary-red);
+    border-color: var(--secondary-red);
+    box-shadow: 0 4px 10px rgba(var(--primary-red-rgb), 0.4);
+}
+
+/* Ajuste de Largura - Contêiner principal para ter mais espaço */
+.main-layout-container {
+    display: flex;
+    gap: 25px;
+    width: 100%;
+    max-width: 95vw; /* Ocupa 95% da largura da viewport */
+    background-color: #222;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    padding: 30px;
+    align-items: flex-start;
+    overflow-x: auto; /* Adicionado para permitir rolagem horizontal no contêiner principal */
+}
+
+/* Ajuste das barras laterais para largura fixa, liberando espaço para o centro */
+.left-panel, .right-panel {
+    width: 280px; /* Largura fixa para as paletas */
+    flex-shrink: 0; /* Não permite que encolham */
+    border: 1px dashed var(--medium-gray);
+    background-color: var(--light-gray);
+    padding: 20px;
+    border-radius: 10px;
+    max-height: 300vh;
+    overflow-y: auto;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Regras para organizar as OTs em duplas/grupos */
+.ot-palette {
+    display: flex;
+    flex-direction: column; /* Empilha os GRUPOS de OTs verticalmente */
+    flex-wrap: nowrap; /* Impede que os GRUPOS quebrem a linha */
+    gap: 0; /* Remove o espaçamento global entre os itens, pois o .ot-group já lida com isso */
+    align-content: flex-start;
+}
+
+.ot-group {
+    display: flex; /* Habilita o Flexbox para organizar as OTs dentro do grupo */
+    flex-direction: row; /* Coloca as OTs lado a lado */
+    align-items: center; /* Alinha verticalmente no centro se tiverem alturas diferentes */
+    justify-content: space-between; /* Distribui as OTs para as extremidades do grupo */
+    gap: 5px; /* Espaço mínimo entre as OTs dentro de um grupo */
+    margin-bottom: 10px; /* Espaço vertical entre os diferentes grupos de OTs */
+    width: 100%; /* Garante que o grupo ocupe a largura total da paleta */
+    position: relative; /* Para a linha de conexão se desejar */
+    padding: 5px 0; /* Espaçamento interno para a linha */
+}
+
+/* Linha de conexão entre as OTs - opcional, mas pode ser adicionada com pseudo-elementos */
+.ot-group::before {
+    content: '';
+    position: absolute;
+    top: 50%; /* Alinha verticalmente no meio */
+    left: 30px; /* Começa após a primeira OT */
+    right: 30px; /* Termina antes da segunda OT */
+    height: 2px; /* Espessura da linha */
+    background-color: rgba(255, 255, 255, 0.2); /* Cor da linha */
+    z-index: 0; /* Fica atrás das imagens das OTs */
+    transform: translateY(-50%); /* Ajuste fino de alinhamento */
+    pointer-events: none; /* Não interfere com cliques ou arrastos */
+    border-top: 1px dashed rgba(255, 255, 255, 0.3); /* Linha tracejada */
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+}
+
+/* Remover a linha de conexão para grupos com apenas uma OT (se necessário) */
+.ot-group:has(img:only-child)::before {
+    display: none;
+}
+
+
+.ot-base, .ot { /* Aplica-se a ambas as classes para consistência */
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    cursor: grab;
+    border: 2px solid transparent;
+    transition: transform 0.15s ease-in-out, border-color 0.2s, box-shadow 0.2s;
+    object-fit: contain;
+    background-color: #3a3a3a;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1; /* Garante que a OT fique acima da linha de conexão */
+}
+
+
+.ot:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.ot.dragging {
+    opacity: 0.6;
+    border-color: var(--primary-red);
+    box-shadow: 0 6px 12px rgba(var(--primary-red-rgb), 0.3);
+    transform: scale(1.05);
+}
+
+.ot:hover {
+    border-color: var(--primary-red);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+.connector-palette {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.connector-draggable-item {
+    border: 1px solid var(--medium-gray);
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #3a3a3a;
+    cursor: grab;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    text-align: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s, opacity 0.2s, border-color 0.2s;
+    width: 150px;
+}
+
+.connector-draggable-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    border-color: var(--primary-red);
+}
+
+.connector-draggable-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 8px auto;
+    border-radius: 5px;
+}
+
+.connector-draggable-item span {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--light-text);
+    word-wrap: break-word;
+    display: block;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+}
+
+.connector-draggable-item.dragging {
+    opacity: 0.6;
+    transform: scale(0.95);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* Coluna do meio: Área dos Postos */
+.center-panel {
+    flex-grow: 1; /* Permite que cresça para preencher o espaço disponível */
+    border: 2px dashed var(--primary-red);
+    background-color: var(--light-gray);
+    padding: 25px;
+    border-radius: 12px;
+    min-height: 80vh; /* Aumenta a altura mínima para cobrir a tela */
+    display: flex;
+    flex-direction: column; /* Postos ainda empilhados verticalmente */
+    gap: 30px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+    overflow-x: auto; /* Permite rolagem horizontal no painel central */
+}
+
+.posto-container {
+    border: 1px solid var(--medium-gray);
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    min-height: 180px;
+    position: relative;
+    display: flex;
+    flex-direction: column; /* Conteúdo do posto (header + content) empilhado */
+    gap: 15px;
+    transition: box-shadow 0.3s ease, transform 0.1s ease;
+    width: auto;
+    flex-shrink: 0; /* Impede que o posto encolha se houver muitos */
+}
+
+.posto-container:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+}
+
+.posto-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #555;
+    position: relative; /* Para posicionar o botão "Ir para Paco-Paco deste Posto" */
+}
+
+.posto-header h3 {
+    color: var(--primary-red);
+    margin: 0;
+    flex-shrink: 0;
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+/* IMPORTANTE: Este é o bloco que controla o layout dos elementos dentro de CADA posto */
+.posto-content {
+    display: flex; /* Habilita o Flexbox */
+    flex-direction: row; /* ALTERADO: Coloca os itens lado a lado */
+    flex-wrap: nowrap; /* NOVO: Impede a quebra de linha */
+    align-items: flex-start; /* Alinha os itens pelo topo */
+    width: 100%;
+    min-height: 120px; /* Garante altura mínima para o conteúdo */
+    gap: 20px; /* Espaço entre os conectores */
+    overflow-x: auto; /* NOVO: Adiciona barra de rolagem horizontal */
+    padding-bottom: 10px; /* Espaço para a barra de rolagem não sobrepor o conteúdo */
+}
+
+/* Área para os conectores dentro do posto */
+/* Este estilo pode ser mesclado com .posto-content ou removido se .posto-content já o controla */
+/* Como .posto-content agora controla o layout dos conectores, esta regra pode ser menos relevante */
+/* ou precisar ser reavaliada se houver outros elementos dentro do posto-content além de conectores */
+.posto-connectors-area {
+    /* Pode ser removido ou reajustado se o .posto-content gerencia tudo agora */
+    /* display: flex; REMOVIDO/AJUSTADO */
+    /* flex-wrap: wrap; REMOVIDO/AJUSTADO */
+    /* gap: 20px; REMOVIDO/AJUSTADO */
+    width: 100%;
+    /* padding-top: 15px; REMOVIDO/AJUSTADO */
+    /* overflow-x: auto; REMOVIDO/AJUSTADO */
+    justify-content: flex-start;
+    align-items: flex-start;
+    min-height: 150px;
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+    order: 1;
+}
+
+.posto-connectors-area.drag-over-posto-area { /* Classe de drag-over para a área de conectores */
+    background-color: rgba(var(--primary-red-rgb), 0.2);
+    border: 2px dashed var(--primary-red);
+    border-radius: 8px;
+}
+
+.progress-bar-container {
+    flex-grow: 1;
+    height: 30px;
+    background-color: var(--medium-gray);
+    border-radius: 6px;
+    border: 1px solid #555;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #28a745;
+    transition: width 0.5s ease-in-out, background-color 0.5s ease;
+}
+
+.progress-bar-fill.warning {
+    background-color: #ffc107;
+}
+
+.progress-bar-fill.danger {
+    background-color: #dc3545;
+}
+
+.progress-time-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--light-text);
+    font-weight: bold;
+    font-size: 1em;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Ajuste do Conector: Voltar ao posicionamento absoluto para imagem e checkbox */
+.conector {
+    position: relative; /* Essencial para os elementos absolutos internos */
+    border: 1px solid var(--medium-gray);
+    border-radius: 8px;
+    overflow: hidden; /* Garante que elementos filhos não vazem */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    background-color: #3a3a3a;
+    cursor: default !important;
+    flex-shrink: 0; /* Garante que o conector não encolha e permaneça em sua largura definida */
+    min-height: 680px; /* Exemplo: para uma imagem de 650px de altura + 30px de checkbox container */
+    width: auto; /* A largura será definida pelo JS */
+    box-sizing: border-box; /* Inclui padding e border na largura/altura */
+}
+
+/* Imagem de fundo do conector */
+.conector-bg-image {
+    width: 100%;
+    height: 100%; /* Imagem ocupa 100% da área do conector */
+    object-fit: contain;
+    position: absolute; /* Posiciona a imagem como background */
+    top: 0;
+    left: 0;
+    z-index: 1; /* Fica atrás de slots e checkbox */
+    pointer-events: none;
+    border-radius: 8px;
+}
+
+/* Estilo para o container do checkbox */
+.conector-checkbox-container {
+    position: absolute; /* Posicionamento absoluto dentro do .conector */
+    bottom: 0; /* Alinha na parte inferior do conector */
+    left: 0;
+    width: 100%; /* Ocupa toda a largura inferior do conector */
+    z-index: 15; /* Fica acima da imagem de fundo e slots */
+    padding: 5px 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para legibilidade */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    display: flex; /* Para centralizar o checkbox e a label */
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    min-height: 25px; /* Altura mínima para o container do checkbox */
+    box-sizing: border-box; /* Inclui padding na altura */
+}
+
+.conector-checkbox-container label {
+    font-size: 0.75em; /* Tamanho da fonte para caber mais */
+    color: var(--light-text);
+    font-weight: normal;
+    cursor: pointer;
+    text-shadow: 0 0 2px rgba(0,0,0,0.7);
+    white-space: normal; /* Permite que o texto quebre em várias linhas */
+    line-height: 1.2; /* Altura da linha para melhor leitura do texto quebrado */
+    max-width: calc(100% - 30px); /* Garante espaço para o checkbox, ajuste se necessário */
+    text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo e não couber */
+    overflow: hidden; /* Oculta texto que transborda */
+}
+
+.conector-trava-checkbox {
+    cursor: pointer;
+    transform: scale(1.2);
+    margin: 0; /* Remove margens padrão que podem causar desalinhamento */
+}
+
+
+.slot {
+    position: absolute;
+    /* width e height virão do JS */
+    border: 1px dashed var(--primary-red);
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex; /* Adicionado para centralizar a imagem da OT e o label */
+    flex-direction: column; /* Para empilhar a OT e o label */
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center; /* Centraliza horizontalmente */
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    z-index: 2; /* Fica acima da imagem de fundo, mas abaixo do checkboxContainer */
+    cursor: pointer;
+    overflow: hidden; /* Garante que o label não vaze se for grande */
+}
+
+.slot.drag-over {
+    background-color: rgba(var(--primary-red-rgb), 0.3);
+    border-color: var(--primary-red);
+    box-shadow: 0 0 15px 5px rgba(var(--primary-red-rgb), 0.7);
+}
+
+.slot .ot {
+    width: 90%; /* Ajustado para preencher a slot */
+    height: 90%; /* Ajustado para preencher a slot */
+    object-fit: contain;
+    cursor: pointer;
+    box-shadow: none;
+    border: none;
+    background-color: transparent;
+    flex-shrink: 0; /* Impede que a imagem encolha */
+    z-index: 1; /* Garante que a imagem OT esteja abaixo do label de origem */
+    /* Removido opacity e filter daqui para que as OTs apareçam completas */
+    opacity: 1;
+    filter: none;
+}
+
+.slot.has-ot {
+    background-color: rgba(0, 255, 0, 0.1);
+    border-color: #28a745;
+}
+
+/* Estilo para a OT propagada */
+.slot .propagated-ot {
+    /* Manter um pequeno brilho ou filtro para diferenciar, se desejar. */
+    /* Caso contrário, remova ou comente esta regra também. */
+    opacity: 0.9; /* Um pouco menos opaco para diferenciar, mas ainda visível */
+    filter: brightness(80%); /* Um pouco mais escura */
+}
+
+/* Estilo para o label de origem */
+.origin-label {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 0.6em;
+    padding: 2px 4px;
+    border-radius: 3px;
+    z-index: 3;
+    pointer-events: none;
+    font-weight: bold;
+    min-width: 15px;
+    text-align: center;
+}
+
+.ot-palette.drag-over-palette {
+    background-color: rgba(var(--primary-red-rgb), 0.1);
+    border-color: var(--primary-red);
+}
+
+.connector-palette.drag-over-palette {
+    background-color: rgba(var(--primary-red-rgb), 0.1);
+    border-color: var(--primary-red);
+}
+
+.remove-connector-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--primary-red);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.remove-connector-btn:hover {
+    background-color: var(--secondary-red);
+    transform: scale(1.1);
+}
+
+/* --- ESTILOS PARA O PENTE (APENAS SLOTS NA HORIZONTAL) --- */
+.pente-container {
+    position: relative;
+    border: 1px dashed var(--medium-gray);
+    border-radius: 8px;
+    background-color: #3a3a3a;
+    padding: 5px;
+    flex-shrink: 0;
+    margin-top: 20px; /* Espaço entre a área de conectores e o pente */
+    box-sizing: border-box;
+    width: auto;
+    min-width: 100%;
+    height: 60px; /* Altura fixa para uma única linha de slots (slotSize + padding) */
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    order: 2; /* ORDEM 2: Aparece depois da área de conectores na coluna flex */
+}
+
+.pente-bg-image {
+    display: none;
+}
+
+.pente-clamp {
+    position: absolute;
+    border: 1px solid var(--clamp-border-empty);
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.05); /* Fundo sutil para a clamp vazia */
+    display: flex;
+    flex-direction: column; /* Para empilhar imagem e número */
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    z-index: 2; /* Garante que a clamp esteja ACIMA do pente-container */
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.pente-clamp .clamp-number {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    color: rgba(255, 255, 255, 0.5); /* Cor mais discreta para o número */
+    font-size: 0.6em;
+    font-weight: bold;
+    z-index: 3; /* Acima da imagem do item, mas discreto */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.pente-clamp.drag-over {
+    background-color: rgba(var(--primary-red-rgb), 0.3);
+    border-color: var(--primary-red);
+    box-shadow: 0 0 10px 3px rgba(var(--primary-red-rgb), 0.7);
+}
+
+.pente-clamp.has-item {
+    border-color: var(--clamp-border-empty);
+    background-color: transparent; /* Remove fundo para a imagem do item ser visível */
+}
+
+/* Estilos para os itens DENTRO do pente (OTs e Conectores) */
+.ot-in-pente-display,
+.connector-in-pente-display { /* Aplica estilos comuns para ambos */
+    width: 90%; /* Ajuste para dar um pequeno padding visual */
+    height: 90%;
+    object-fit: contain; /* Garante que a imagem se ajuste sem cortar */
+    cursor: grab;
+    transition: opacity 0.2s, transform 0.2s;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    z-index: 4; /* Garante que a imagem do item fique acima do número e da clamp */
+}
+
+/* Esconder o nome do conector quando ele está na slot do pente */
+.connector-in-pente-display .connector-in-pente-name-display {
+    display: none;
+}
+
+/* A imagem do conector dentro do pente deve preencher o espaço */
+.connector-in-pente-img-display {
+    width: 100%; /* A imagem preenche o container .connector-in-pente-display */
+    height: 100%;
+    object-fit: contain;
+}
+
+.ot-in-pente-display.dragging,
+.connector-in-pente-display.dragging {
+    opacity: 0.7;
+    transform: scale(0.9);
+}
+
+/* Indicativos de cor para as clamps no pente */
+.pente-clamp.clamp-baixar {
+    border-color: var(--clamp-blue);
+    box-shadow: 0 0 5px 2px var(--clamp-blue);
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.pente-clamp.clamp-puxar {
+    border-color: var(--clamp-green);
+    box-shadow: 0 0 5px 2px var(--clamp-green);
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+
+/* Scrollbar Style - para combinar com o tema escuro */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #333;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
+    border: 2px solid #333;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-red);
+}
+
+/* Container para os botões do relatório e a área do relatório */
+.report-controls-and-area {
+    margin-top: 30px; /* Espaço do conteúdo acima */
+    width: 95%; /* Ocupa 95% da largura da viewport */
+    max-width: 1200px; /* Largura máxima para o relatório */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza os itens horizontalmente */
+    gap: 20px; /* Espaço entre os botões e a área do relatório */
+    box-sizing: border-box;
+}
+
+.report-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center; /* Centraliza os botões */
+    width: 100%;
+}
+
+.report-buttons button {
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: 1px solid var(--primary-red);
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: var(--primary-red);
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.report-buttons button:hover {
+    background-color: var(--secondary-red);
+    border-color: var(--secondary-red);
+    box-shadow: 0 4px 10px rgba(var(--primary-red-rgb), 0.4);
+}
+
+
+/* NOVO: Estilos para a área de relatório */
+#report-area {
+    padding: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    width: 100%; /* Ocupa 100% do seu container pai */
+    color: var(--light-text);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-height: 70vh; /* Altura máxima com scrollbar se necessário */
+    overflow-y: auto;
+    box-sizing: border-box; /* Inclui padding e border na largura/altura */
+}
+
+#report-area h2 {
+    color: var(--primary-red);
+    text-align: center;
+    margin-top: 0; /* Ajuste para espaçamento após o título */
+    margin-bottom: 25px;
+    font-size: 2em;
+    border-bottom: none; /* Removido para evitar duas linhas de separação */
+}
+
+.report-posto-section {
+    border: 1px solid var(--medium-gray);
+    background-color: #2a2a2a;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.report-posto-section h3 {
+    color: var(--primary-red);
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.report-posto-section p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.report-posto-section h4 {
+    color: var(--light-text);
+    border-bottom: 1px dashed #555;
+    padding-bottom: 5px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.report-posto-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.report-posto-section ul li {
+    padding: 5px 0;
+    border-bottom: 1px dotted rgba(255,255,255,0.05);
+    font-size: 0.9em;
+}
+
+.report-posto-section ul li:last-child {
+    border-bottom: none;
+}
+
+/* NOVO: Estilos para o Modal de Seleção de Posto */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top, acima de tudo */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #2a2a2a;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    position: relative;
+    text-align: center;
+    color: var(--light-text);
+}
+
+.modal-content h2 {
+    color: var(--primary-red);
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: none;
+}
+
+.modal-content p {
+    margin-bottom: 15px;
+    font-size: 1em;
+}
+
+.modal-content select {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background-color: #3a3a3a;
+    color: var(--light-text);
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    background-color: var(--primary-red);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-content button:hover {
+    background-color: var(--secondary-red);
+    box-shadow: 0 3px 8px rgba(var(--primary-red-rgb), 0.4);
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--primary-red);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+/* NOVO: Estilos para a página Paco-Paco (paco-paco.html) */
+#paco-paco-postos-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os blocos de posto quebrem linha */
+    gap: 30px;
+    width: 100%;
+    max-width: 95vw;
+    margin-top: 20px;
+    padding: 30px;
+    background-color: #222;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    justify-content: center; /* Centraliza os blocos de posto */
+    align-items: flex-start;
+}
+
+.paco-posto-section {
+    border: 1px solid var(--medium-gray);
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-basis: calc(50% - 15px); /* Ocupa cerca de metade da largura, com espaço entre */
+    max-width: calc(50% - 15px);
+    box-sizing: border-box; /* Inclui padding e border na largura */
+    min-width: 600px; /* Largura mínima para o posto completo do Paco-Paco */
+}
+
+.paco-posto-section h2 {
+    color: var(--primary-red);
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #555;
+    padding-bottom: 10px;
+}
+
+.paco-posto-content-wrapper {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.paco-paco-palette-local {
+    width: 180px; /* Largura fixa para a paleta de OTs do posto */
+    flex-shrink: 0;
+    border: 1px dashed #555;
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-radius: 8px;
+    max-height: 400px; /* Altura máxima para a paleta com scroll */
+    overflow-y: auto;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+.paco-paco-palette-local h3 {
+    color: var(--light-text);
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1em;
+    text-align: center;
+}
+
+.paco-palette-ots {
+    display: flex;
+    flex-wrap: wrap; /* Permite que as OTs quebrem linha na paleta */
+    gap: 10px;
+    justify-content: center;
+}
+
+.paco-ot-draggable {
+    width: 50px;
+    height: 50px;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    cursor: grab;
+    transition: border-color 0.15s, transform 0.15s;
+    object-fit: contain;
+    background-color: #3a3a3a;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.paco-ot-draggable:hover {
+    border-color: var(--primary-red);
+    transform: translateY(-2px);
+}
+
+.paco-ot-draggable.dragging {
+    opacity: 0.6;
+    border-color: var(--primary-red);
+    box-shadow: 0 4px 8px rgba(var(--primary-red-rgb), 0.3);
+}
+
+.paco-paco-grid-area-local {
+    flex-grow: 1;
+    border: 2px dashed var(--primary-red);
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-radius: 8px;
+    display: grid;
+    /* grid-template-columns e grid-template-rows definidos no JS */
+    gap: 3px; /* Espaço entre as cavidades */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    overflow: auto; /* Rolagem se o grid for muito grande */
+    min-width: 400px; /* Largura mínima para o grid de 10 colunas x 40px */
+}
+
+.paco-paco-cavity-local {
+    border: 1px solid #555;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+    transition: background-color 0.1s, border-color 0.1s;
+    box-sizing: border-box;
+}
+
+.paco-paco-cavity-local.drag-over {
+    background-color: rgba(var(--primary-red-rgb), 0.3);
+    border-color: var(--primary-red);
+    box-shadow: 0 0 8px 2px rgba(var(--primary-red-rgb), 0.6);
+}
+
+.paco-paco-cavity-local.has-ot {
+    background-color: rgba(0, 255, 0, 0.1);
+    border-color: #28a745;
+}
+
+.paco-ot-in-cavity {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+    cursor: pointer; /* Permite clicar para remover */
+}
+
+@media (max-width: 1200px) {
+    .paco-posto-section {
+        flex-basis: 100%; /* Em telas menores, ocupa a largura total */
+        max-width: 100%;
+    }
+}
+
+/* NOVO: Estilo para a legenda dentro da cavidade do Paco-Paco */
+.paco-paco-cavity-local {
+    position: relative; /* Necessário para posicionar o label */
+    /* ... estilos existentes ... */
+}
+
+.paco-cavity-label {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 0.6em; /* Tamanho da fonte para caber */
+    color: rgba(255, 255, 255, 0.6); /* Cor suave */
+    font-weight: bold;
+    z-index: 5; /* Garante que a legenda fique acima da OT */
+    pointer-events: none; /* Não interfere com cliques/arrastes */
+}

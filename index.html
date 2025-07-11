@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Distribuição de Sub-Montagem</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <h1>Simulação de Distribuição de Sub-Montagem</h1>
+
+    <div class="controls">
+        <label for="numPostos">Quantidade de Postos:</label>
+        <select id="numPostos">
+            <option value="1">1 Posto</option>
+            <option value="2">2 Postos</option>
+            <option value="3">3 Postos</option>
+            <option value="4" selected>4 Postos</option>
+            <option value="5">5 Postos</option>
+            <option value="6">6 Postos</option>
+        </select>
+        <button id="gerarPostosBtn">Gerar Postos</button>
+        <span class="separator">|</span>
+        <label for="taktTime">Takt Time (segundos):</label>
+        <input type="number" id="taktTime" value="45" min="1">
+        <span class="separator">|</span>
+        <button id="goToPacoPacoBtn">Ir para Paco-Paco</button>
+    </div>
+
+    <div class="main-layout-container">
+        <div class="left-panel ot-palette" id="ot-palette">
+            <h2>OTs</h2>
+            <div class="ot-group">
+                <img src="images/0190.png" alt="0190" class="ot-base draggable ot" draggable="true" id="ot0190">
+                <img src="images/0190D.png" alt="0190D" class="ot-base draggable ot" draggable="true" id="ot0190D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0192.png" alt="0192" class="ot-base draggable ot" draggable="true" id="ot0192">
+                <img src="images/0192D.png" alt="0192D" class="ot-base draggable ot" draggable="true" id="ot0192D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0193.png" alt="0193" class="ot-base draggable ot" draggable="true" id="ot0193">
+                <img src="images/0193D.png" alt="0193D" class="ot-base draggable ot" draggable="true" id="ot0193D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0229.png" alt="0229" class="ot-base draggable ot" draggable="true" id="ot0229">
+                <img src="images/0229D.png" alt="0229D" class="ot-base draggable ot" draggable="true" id="ot0229D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0247.png" alt="0247" class="ot-base draggable ot" draggable="true" id="ot0247">
+                <img src="images/0247D.png" alt="0247D" class="ot-base draggable ot" draggable="true" id="ot0247D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0267.png" alt="0267" class="ot-base draggable ot" draggable="true" id="ot0267">
+                <img src="images/0267D.png" alt="0267D" class="ot-base draggable ot" draggable="true" id="ot0267D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0269.png" alt="0269" class="ot-base draggable ot" draggable="true" id="ot0269">
+                <img src="images/0269D.png" alt="0269D" class="ot-base draggable ot" draggable="true" id="ot0269D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0270.png" alt="0270" class="ot-base draggable ot" draggable="true" id="ot0270">
+                <img src="images/0270D.png" alt="0270D" class="ot-base draggable ot" draggable="true" id="ot0270D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0271.png" alt="0271" class="ot-base draggable ot" draggable="true" id="ot0271">
+                <img src="images/0271D.png" alt="0271D" class="ot-base draggable ot" draggable="true" id="ot0271D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0272.png" alt="0272" class="ot-base draggable ot" draggable="true" id="ot0272">
+                <img src="images/0272D.png" alt="0272D" class="ot-base draggable ot" draggable="true" id="ot0272D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0273.png" alt="0273" class="ot-base draggable ot" draggable="true" id="ot0273">
+                <img src="images/0273D.png" alt="0273D" class="ot-base draggable ot" draggable="true" id="ot0273D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0274.png" alt="0274" class="ot-base draggable ot" draggable="true" id="ot0274">
+                <img src="images/0274D.png" alt="0274D" class="ot-base draggable ot" draggable="true" id="ot0274D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0275.png" alt="0275" class="ot-base draggable ot" draggable="true" id="ot0275">
+                <img src="images/0275D.png" alt="0275D" class="ot-base draggable ot" draggable="true" id="ot0275D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0276.png" alt="0276" class="ot-base draggable ot" draggable="true" id="ot0276">
+                <img src="images/0276D.png" alt="0276D" class="ot-base draggable ot" draggable="true" id="ot0276D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0277.png" alt="0277" class="ot-base draggable ot" draggable="true" id="ot0277">
+                <img src="images/0277D.png" alt="0277D" class="ot-base draggable ot" draggable="true" id="ot0277D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0278.png" alt="0278" class="ot-base draggable ot" draggable="true" id="ot0278">
+                <img src="images/0278D.png" alt="0278D" class="ot-base draggable ot" draggable="true" id="ot0278D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0279.png" alt="0279" class="ot-base draggable ot" draggable="true" id="ot0279">
+                <img src="images/0279D.png" alt="0279D" class="ot-base draggable ot" draggable="true" id="ot0279D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0280.png" alt="0280" class="ot-base draggable ot" draggable="true" id="ot0280">
+                <img src="images/0280D.png" alt="0280D" class="ot-base draggable ot" draggable="true" id="ot0280D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0281.png" alt="0281" class="ot-base draggable ot" draggable="true" id="ot0281">
+                <img src="images/0281D.png" alt="0281D" class="ot-base draggable ot" draggable="true" id="ot0281D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0282.png" alt="0282" class="ot-base draggable ot" draggable="true" id="ot0282">
+                <img src="images/0282D.png" alt="0282D" class="ot-base draggable ot" draggable="true" id="ot0282D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0283.png" alt="0283" class="ot-base draggable ot" draggable="true" id="ot0283">
+                <img src="images/0283D.png" alt="0283D" class="ot-base draggable ot" draggable="true" id="ot0283D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0284.png" alt="0284" class="ot-base draggable ot" draggable="true" id="ot0284">
+                <img src="images/0284D.png" alt="0284D" class="ot-base draggable ot" draggable="true" id="ot0284D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0285.png" alt="0285" class="ot-base draggable ot" draggable="true" id="ot0285">
+                <img src="images/0285D.png" alt="0285D" class="ot-base draggable ot" draggable="true" id="ot0285D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0286.png" alt="0286" class="ot-base draggable ot" draggable="true" id="ot0286">
+                <img src="images/0286D.png" alt="0286D" class="ot-base draggable ot" draggable="true" id="ot0286D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0296.png" alt="0296" class="ot-base draggable ot" draggable="true" id="ot0296">
+                <img src="images/0296D.png" alt="0296D" class="ot-base draggable ot" draggable="true" id="ot0296D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0299.png" alt="0299" class="ot-base draggable ot" draggable="true" id="ot0299">
+                <img src="images/0299D.png" alt="0299D" class="ot-base draggable ot" draggable="true" id="ot0299D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0300.png" alt="0300" class="ot-base draggable ot" draggable="true" id="ot0300">
+                <img src="images/0300D.png" alt="0300D" class="ot-base draggable ot" draggable="true" id="ot0300D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0301.png" alt="0301" class="ot-base draggable ot" draggable="true" id="ot0301">
+                <img src="images/0301D.png" alt="0301D" class="ot-base draggable ot" draggable="true" id="ot0301D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0302.png" alt="0302" class="ot-base draggable ot" draggable="true" id="ot0302">
+                <img src="images/0302D.png" alt="0302D" class="ot-base draggable ot" draggable="true" id="ot0302D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0304.png" alt="0304" class="ot-base draggable ot" draggable="true" id="ot0304">
+                <img src="images/0304D.png" alt="0304D" class="ot-base draggable ot" draggable="true" id="ot0304D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0305.png" alt="0305" class="ot-base draggable ot" draggable="true" id="ot0305">
+                <img src="images/0305D.png" alt="0305D" class="ot-base draggable ot" draggable="true" id="ot0305D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0309.png" alt="0309" class="ot-base draggable ot" draggable="true" id="ot0309">
+                <img src="images/0309D.png" alt="0309D" class="ot-base draggable ot" draggable="true" id="ot0309D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0310.png" alt="0310" class="ot-base draggable ot" draggable="true" id="ot0310">
+                <img src="images/0310D.png" alt="0310D" class="ot-base draggable ot" draggable="true" id="ot0310D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0311.png" alt="0311" class="ot-base draggable ot" draggable="true" id="ot0311">
+                <img src="images/0311D.png" alt="0311D" class="ot-base draggable ot" draggable="true" id="ot0311D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0312.png" alt="0312" class="ot-base draggable ot" draggable="true" id="ot0312">
+                <img src="images/0312D.png" alt="0312D" class="ot-base draggable ot" draggable="true" id="ot0312D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0321.png" alt="0321" class="ot-base draggable ot" draggable="true" id="ot0321">
+                <img src="images/0321D.png" alt="0321D" class="ot-base draggable ot" draggable="true" id="ot0321D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0323.png" alt="0323" class="ot-base draggable ot" draggable="true" id="ot0323">
+                <img src="images/0323D.png" alt="0323D" class="ot-base draggable ot" draggable="true" id="ot0323D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0328.png" alt="0328" class="ot-base draggable ot" draggable="true" id="ot0328">
+                <img src="images/0328D.png" alt="0328D" class="ot-base draggable ot" draggable="true" id="ot0328D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0329.png" alt="0329" class="ot-base draggable ot" draggable="true" id="ot0329">
+                <img src="images/0329D.png" alt="0329D" class="ot-base draggable ot" draggable="true" id="ot0329D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0330.png" alt="0330" class="ot-base draggable ot" draggable="true" id="ot0330">
+                <img src="images/0330D.png" alt="0330D" class="ot-base draggable ot" draggable="true" id="ot0330D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0331.png" alt="0331" class="ot-base draggable ot" draggable="true" id="ot0331">
+                <img src="images/0331D.png" alt="0331D" class="ot-base draggable ot" draggable="true" id="ot0331D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0332.png" alt="0332" class="ot-base draggable ot" draggable="true" id="ot0332">
+                <img src="images/0332D.png" alt="0332D" class="ot-base draggable ot" draggable="true" id="ot0332D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0333.png" alt="0333" class="ot-base draggable ot" draggable="true" id="ot0333">
+                <img src="images/0333D.png" alt="0333D" class="ot-base draggable ot" draggable="true" id="ot0333D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0334.png" alt="0334" class="ot-base draggable ot" draggable="true" id="ot0334">
+                <img src="images/0334D.png" alt="0334D" class="ot-base draggable ot" draggable="true" id="ot0334D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0335.png" alt="0335" class="ot-base draggable ot" draggable="true" id="ot0335">
+                <img src="images/0335D.png" alt="0335D" class="ot-base draggable ot" draggable="true" id="ot0335D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0336.png" alt="0336" class="ot-base draggable ot" draggable="true" id="ot0336">
+                <img src="images/0336D.png" alt="0336D" class="ot-base draggable ot" draggable="true" id="ot0336D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0337.png" alt="0337" class="ot-base draggable ot" draggable="true" id="ot0337">
+                <img src="images/0337D.png" alt="0337D" class="ot-base draggable ot" draggable="true" id="ot0337D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0338.png" alt="0338" class="ot-base draggable ot" draggable="true" id="ot0338">
+                <img src="images/0338D.png" alt="0338D" class="ot-base draggable ot" draggable="true" id="ot0338D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0339.png" alt="0339" class="ot-base draggable ot" draggable="true" id="ot0339">
+                <img src="images/0339D.png" alt="0339D" class="ot-base draggable ot" draggable="true" id="ot0339D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0340.png" alt="0340" class="ot-base draggable ot" draggable="true" id="ot0340">
+                <img src="images/0340D.png" alt="0340D" class="ot-base draggable ot" draggable="true" id="ot0340D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0341.png" alt="0341" class="ot-base draggable ot" draggable="true" id="ot0341">
+                <img src="images/0341D.png" alt="0341D" class="ot-base draggable ot" draggable="true" id="ot0341D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0342.png" alt="0342" class="ot-base draggable ot" draggable="true" id="ot0342">
+                <img src="images/0342D.png" alt="0342D" class="ot-base draggable ot" draggable="true" id="ot0342D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0343.png" alt="0343" class="ot-base draggable ot" draggable="true" id="ot0343">
+                <img src="images/0343D.png" alt="0343D" class="ot-base draggable ot" draggable="true" id="ot0343D">
+            </div>
+            <div class="ot-group">
+                <img src="images/0344.png" alt="0344" class="ot-base draggable ot" draggable="true" id="ot0344">
+                <img src="images/0344D.png" alt="0344D" class="ot-base draggable ot" draggable="true" id="ot0344D">
+            </div>
+        </div>
+
+        <div class="center-panel postos-area" id="postos-area">
+        </div>
+
+        <div class="right-panel connector-palette" id="connector-palette">
+            <h2>Conectores</h2>
+        </div>
+    </div>
+
+    <div class="report-controls-and-area">
+        <div class="report-buttons">
+            <button id="gerarRelatorioBtn">Gerar Relatório Detalhado</button>
+            <button id="limparRelatorioBtn">Limpar Relatório</button>
+        </div>
+        <div id="report-area"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
