@@ -1817,6 +1817,14 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionStorage.removeItem('selectedPacoPostoIdForTab');
             window.open('paco-paco.html', '_blank');
         });
+
+        // --- Adicionar salvamento automático ---
+        window.addEventListener('beforeunload', saveAppState); // Salva ao fechar ou recarregar a página
+        window.addEventListener('pagehide', saveAppState);     // Para melhor compatibilidade (BFCache)
+        setInterval(saveAppState, 30000); // Salva a cada 30 segundos
+        // --- Fim do salvamento automático ---
+
+
         console.log("Listeners globais anexados com sucesso.");
     } catch (e) {
         console.error("Erro ao anexar listeners globais:", e);
