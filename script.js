@@ -284,13 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const reportArea = document.getElementById('report-area');
     const goToPacoPacoBtn = document.getElementById('goToPacoPacoBtn');
 
-    // --- Variáveis de Controle (inicializadas como vazias, serão populadas no loadAppState ou generatePostos) ---
+    // --- Variáveis de Controle ---
     let draggedOt = null;
     let draggedConnectorType = null;
     let postoTimes = {};
     let connectorTypeCounts = {};
     let slotContents = {};
     let originalOtsByPosto = {};
+
     let otOriginalOwners = {};
 
     let availableOts = new Set();
@@ -366,60 +367,53 @@ document.addEventListener('DOMContentLoaded', () => {
             const savedConnectorInstanceAddTimes = localStorage.getItem('connectorInstanceAddTimes');
             const savedPostosAreaHTML = localStorage.getItem('postosAreaHTML');
 
-            if (savedNumPostos && savedPostosAreaHTML) { // **AJUSTE PRINCIPAL:** Garante que o HTML também está salvo
+            if (savedNumPostos) {
                 numPostosSelect.value = savedNumPostos;
                 taktTimeInput.value = savedTaktTime;
+                postoTimes = JSON.parse(savedPostoTimes);
+                connectorTypeCounts = JSON.parse(savedConnectorTypeCounts);
+                slotContents = JSON.parse(savedSlotContents);
 
-                // **AJUSTE PRINCIPAL:** Adiciona fallbacks para objetos vazios se os dados forem nulos
-                postoTimes = JSON.parse(savedPostoTimes || '{}');
-                connectorTypeCounts = JSON.parse(savedConnectorTypeCounts || '{}');
-                slotContents = JSON.parse(savedSlotContents || '{}');
-
-                const loadedOtsByPosto = JSON.parse(savedOriginalOtsByPosto || '{}');
-                originalOtsByPosto = {}; // Limpa antes de popular
+                const loadedOtsByPosto = JSON.parse(savedOriginalOtsByPosto);
                 for (const postoId in loadedOtsByPosto) {
                     originalOtsByPosto[postoId] = new Set(loadedOtsByPosto[postoId]);
                 }
                 otOriginalOwners = JSON.parse(savedOtOriginalOwners || '{}');
 
-                postoActionLog = JSON.parse(savedPostoActionLog || '{}');
-                connectorInstanceAddTimes = JSON.parse(savedConnectorInstanceAddTimes || '{}');
+                postoActionLog = JSON.parse(savedPostoActionLog);
+                connectorInstanceAddTimes = JSON.parse(savedConnectorInstanceAddTimes);
 
                 postosArea.innerHTML = savedPostosAreaHTML;
                 console.log("HTML dos postos restaurado.");
 
-                reattachListeners(); // Reanexa todos os listeners aos elementos restaurados
+                reattachListeners();
                 console.log("Listeners reanexados.");
 
-                Object.keys(postoTimes).forEach(updateProgressBar); // Atualiza as barras de progresso
-                syncOtPaletteVisibility(); // Sincroniza a paleta de OTs com o estado carregado
-                updateOriginalOtsByPosto(); // Garante que sessionStorage está em sync.
+                Object.keys(postoTimes).forEach(updateProgressBar);
 
+                syncOtPaletteVisibility();
                 console.log("Estado da simulação carregado com sucesso!");
                 return true;
             }
-            console.log("Nenhum estado salvo encontrado ou incompleto.");
             return false;
         } catch (e) {
             console.error("Erro ao carregar o estado do localStorage:", e);
-            clearSavedState(); // Limpa o estado corrompido para evitar loop
+            clearSavedState();
             return false;
         }
     }
 
     function clearSavedState() {
         localStorage.clear();
-        sessionStorage.clear(); // ALTERAÇÃO: Limpa também o sessionStorage
         console.log("Estado salvo limpo.");
     }
 
     // Função para reanexar listeners após carregar HTML
     function reattachListeners() {
-        // --- Reanexar listeners dos botões de remoção e checkboxes dos conectores ---
         document.querySelectorAll('.posto-content .conector').forEach(conectorDiv => {
             const removeButton = conectorDiv.querySelector('.remove-connector-btn');
             if (removeButton) {
-                removeButton.onclick = null; // Remove qualquer listener anterior
+                removeButton.onclick = null;
                 removeButton.addEventListener('click', () => {
                     const postoId = conectorDiv.closest('.posto-container').id;
                     let timeToSubtract = 0;
@@ -429,7 +423,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const originalAddTimeForThisInstance = connectorInstanceAddTimes[conectorDiv.id] || 0;
 
                     if (originalAddTimeForThisInstance === 0) {
-                        console.warn(`Tempo de adição original não encontrado para o conector ${conectorDiv.id}. Usando DUPLICATE_CONNECTOR_ADD_TIME como fallback.`);
                         timeToSubtract += DUPLICATE_CONNECTOR_ADD_TIME;
                         actionsLogged.push({
                             action: `Conector ${type} removido (Débito padrão por falta de registro original): -${DUPLICATE_CONNECTOR_ADD_TIME.toFixed(2)}s.`,
@@ -441,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         timeToSubtract += originalAddTimeForThisInstance;
                         actionsLogged.push({
-                            action: `Conector ${type} removido (Débito do tempo de adição original): -${originalAddTimeForToThisInstance.toFixed(2)}s.`,
+                            action: `Conector ${type} removido (Débito do tempo de adição original): -${originalAddTimeForThisInstance.toFixed(2)}s.`,
                             time: -originalAddTimeForThisInstance,
                             type: 'subtract',
                             conectorId: conectorDiv.id,
@@ -575,24 +568,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- Reanexar listeners de Drag & Drop para Postos e Slots ---
         addOTDragDropToSlots();
-
         document.querySelectorAll('.posto-content').forEach(postoContent => {
-            // Remove listeners existentes antes de reanexar para evitar duplicação
-            if (postoContent._dragOverListener) postoContent.removeEventListener('dragover', postoContent._dragOverListener);
-            if (postoContent._dragEnterListener) postoContent.removeEventListener('dragenter', postoContent._dragEnterListener);
-            if (postoContent._dragleaveListener) postoContent.removeEventListener('dragleave', postoContent._dragleaveListener);
-            if (postoContent._dropListener) postoContent.removeEventListener('drop', postoContent._dropListener);
+            postoContent.removeEventListener('dragover', postoContent._dragOverListener);
+            postoContent.removeEventListener('dragenter', postoContent._dragEnterListener);
+            postoContent.removeEventListener('dragleave', postoContent._dragleaveListener);
+            postoContent.removeEventListener('drop', postoContent._dropListener);
             addPostoDragDropListeners(postoContent);
         });
-
-        // ALTERAÇÃO: setupOtDragDropListeners agora é chamada aqui para garantir que as OTs existentes
-        // na paleta (se não forem restauradas do HTML) tenham os listeners. O syncOtPaletteVisibility() também chama.
         setupOtDragDropListeners();
-
-        // Não há necessidade de chamar generateConnectorPalette aqui, pois ela é chamada na inicialização
-        // e o conteúdo da paleta de conectores é estático.
+        generateConnectorPalette();
     }
 
     function areAllSlotsFilled(conectorElement) {
@@ -632,7 +617,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Propagação para o Posto de Solda
         const postoSoldaId = 'posto-solda-01';
         const postoSoldaElement = document.getElementById(postoSoldaId);
         if (postoSoldaElement) {
@@ -649,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     otCopy.draggable = false;
 
                     otCopy.classList.add('propagated-ot');
-                    otCopy.dataset.originalPosto = sourcePostoId.startsWith('posto-p') ? `P${sourcePostoNumber}` : postoSoldaId;
+                    otCopy.dataset.originalPosto = sourcePostoId.startsWith('posto-p') ? `P${sourcePostoNumber}` : sourcePostoId;
                     otCopy.dataset.isOriginalForPacoPaco = 'false';
 
                     targetSlot.appendChild(otCopy);
@@ -657,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const originLabel = document.createElement('span');
                     originLabel.classList.add('origin-label');
-                    originLabel.textContent = sourcePostoId.startsWith('posto-p') ? `P${sourcePostoNumber}` : 'Solda';
+                    originLabel.textContent = sourcePostoId.startsWith('posto-p') ? `P${sourcePostoNumber}` : postoId; // Changed to postoId
                     targetSlot.appendChild(originLabel);
 
                     const targetConectorId = targetConectorElement.id;
@@ -669,7 +653,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Propagação para os postos numerados seguintes
         for (let i = sourcePostoNumber + 1; i <= totalPostos; i++) {
             const targetPostoId = `posto-p${String(i).padStart(2, '0')}`;
             const targetPostoElement = document.getElementById(targetPostoId);
@@ -720,7 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const sourceConectorType = sourceConectorElement.dataset.connectorType;
         const sourceSlotSuffix = sourceSlotId.split('-').pop();
 
-        // Depropagação do Posto de Solda
         const postoSoldaId = 'posto-solda-01';
         const postoSoldaElement = document.getElementById(postoSoldaId);
         if (postoSoldaElement) {
@@ -730,7 +712,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (targetSlot) {
                     const otInSlot = targetSlot.querySelector('.ot');
                     const originLabelInSlot = targetSlot.querySelector('.origin-label');
-                    // ALTERAÇÃO: Verifica se o OT no slot é de fato o que estamos depropagando e se é propagado
                     if (otInSlot && otInSlot.id === otId && otInSlot.dataset.isPropagated === 'true') {
                         targetSlot.removeChild(otInSlot);
                         if (originLabelInSlot) {
@@ -748,7 +729,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Depropagação dos postos numerados seguintes
         for (let i = sourcePostoNumber + 1; i <= totalPostos; i++) {
             const targetPostoId = `posto-p${String(i).padStart(2, '0')}`;
             const targetPostoElement = document.getElementById(targetPostoId);
@@ -763,7 +743,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const otInSlot = targetSlot.querySelector('.ot');
                     const originLabelInSlot = targetSlot.querySelector('.origin-label');
 
-                    // ALTERAÇÃO: Verifica se o OT no slot é de fato o que estamos depropagando e se é propagado
                     if (otInSlot && otInSlot.id === otId && otInSlot.dataset.isPropagated === 'true') {
                         targetSlot.removeChild(otInSlot);
                         if (originLabelInSlot) {
@@ -783,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateOriginalOtsByPosto() {
-        originalOtsByPosto = {}; // Zera para reconstruir
+        originalOtsByPosto = {};
         const allPostoElements = document.querySelectorAll('.posto-container');
         allPostoElements.forEach(postoElement => {
             const postoId = postoElement.id;
@@ -794,8 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (const conectorId in postoData) {
                     for (const slotId in postoData[conectorId]) {
                         const otData = postoData[conectorId][slotId];
-                        // ALTERAÇÃO: Garante que otData e otData.otId existam
-                        if (otData && otData.otId && !otData.isPropagated && otData.isOriginalForPacoPaco === true) {
+                        if (!otData.isPropagated && otData.isOriginalForPacoPaco === true) {
                             const baseOtId = otData.otId.endsWith('D') ? otData.otId.slice(0, -1) : otData.otId;
                             originalOtsByPosto[postoId].add(baseOtId);
                         }
@@ -1070,19 +1048,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generatePostos(num) {
         postosArea.innerHTML = '';
-        // **AJUSTE PRINCIPAL:** NÃO zera as variáveis de estado aqui.
-        // Elas são zeradas em `clearReportArea` ou `gerarPostosBtn`
-        // se um reset completo for necessário, ou carregadas por `loadAppState`.
+        postoTimes = {};
+        connectorTypeCounts = {};
+        slotContents = {};
+        postoActionLog = {};
+        connectorInstanceAddTimes = {};
+        originalOtsByPosto = {};
+        otOriginalOwners = {};
 
-        // Reinicializa (ou garante a existência) das variáveis de estado antes de usá-las,
-        // mas APENAS se elas não foram carregadas ou já estão vazias.
-        if (Object.keys(postoTimes).length === 0) postoTimes = {};
-        if (Object.keys(connectorTypeCounts).length === 0) connectorTypeCounts = {};
-        if (Object.keys(slotContents).length === 0) slotContents = {};
-        if (Object.keys(postoActionLog).length === 0) postoActionLog = {};
-        if (Object.keys(connectorInstanceAddTimes).length === 0) connectorInstanceAddTimes = {};
-        if (Object.keys(originalOtsByPosto).length === 0) originalOtsByPosto = {};
-        if (Object.keys(otOriginalOwners).length === 0) otOriginalOwners = {};
+        syncOtPaletteVisibility();
 
         const postoSoldaId = 'posto-solda-01';
         const postoSoldaContainer = document.createElement('div');
@@ -1115,28 +1089,21 @@ document.addEventListener('DOMContentLoaded', () => {
         postosArea.appendChild(postoSoldaContainer);
 
         let soldaBaseTime = 0;
-        // ALTERAÇÃO: Apenas adiciona ações base se o log para este posto ainda não existe ou está vazio
-        if (!postoActionLog[postoSoldaId] || postoActionLog[postoSoldaId].length === 0) {
-            postoActionLog[postoSoldaId] = [];
-            soldaBaseTime += TIME_BARCODE_SCAN;
-            postoActionLog[postoSoldaId].push({
-                action: 'Realizar a leitura do código de barras do kanban (Posto de Solda)',
-                time: TIME_BARCODE_SCAN,
-                type: 'add',
-                category: 'Base Time'
-            });
-        } else {
-             // Se o log já existe, recalcula o tempo base a partir dele
-            soldaBaseTime = postoActionLog[postoSoldaId]
-                            .filter(entry => entry.type === 'add' && entry.category === 'Base Time')
-                            .reduce((sum, entry) => sum + entry.time, 0);
-        }
+        if (!postoActionLog[postoSoldaId]) postoActionLog[postoSoldaId] = [];
+
+        soldaBaseTime += TIME_BARCODE_SCAN;
+        postoActionLog[postoSoldaId].push({
+            action: 'Realizar a leitura do código de barras do kanban (Posto de Solda)',
+            time: TIME_BARCODE_SCAN,
+            type: 'add',
+            category: 'Base Time'
+        });
 
         postoTimes[postoSoldaId] = soldaBaseTime;
         updateProgressBar(postoSoldaId);
         addPostoDragDropListeners(postoSoldaContent);
 
-        // originalOtsByPosto[postoSoldaId] = new Set(); // ALTERAÇÃO: Não zera aqui, é populado pelo loadAppState ou updateOriginalOtsByPosto
+        originalOtsByPosto[postoSoldaId] = new Set();
 
         for (let i = 1; i <= num; i++) {
             const postoId = `posto-p${String(i).padStart(2, '0')}`;
@@ -1171,70 +1138,63 @@ document.addEventListener('DOMContentLoaded', () => {
             postosArea.appendChild(postoContainer);
 
             let baseTime = 0;
-            // ALTERAÇÃO: Apenas adiciona ações base se o log para este posto ainda não existe ou está vazio
-            if (!postoActionLog[postoId] || postoActionLog[postoId].length === 0) {
-                postoActionLog[postoId] = [];
-                if (i === 1) {
-                    baseTime += TIME_TAKE_SAO_BAR_TO_TABLE;
-                    postoActionLog[postoId].push({
-                        action: 'Pegar barra de SAO e colocar na mesa',
-                        time: TIME_TAKE_SAO_BAR_TO_TABLE,
-                        type: 'add',
-                        category: 'Base Time'
-                    });
-                }
-                baseTime += TIME_BARCODE_SCAN;
+            if (!postoActionLog[postoId]) postoActionLog[postoId] = [];
+
+            if (i === 1) {
+                baseTime += TIME_TAKE_SAO_BAR_TO_TABLE;
                 postoActionLog[postoId].push({
-                    action: 'Realizar a leitura do código de barras do kanban',
-                    time: TIME_BARCODE_SCAN,
+                    action: 'Pegar barra de SAO e colocar na mesa',
+                    time: TIME_TAKE_SAO_BAR_TO_TABLE,
                     type: 'add',
                     category: 'Base Time'
                 });
-                if (i === 1) {
-                    baseTime += TIME_PLACE_KANBAN_LABEL;
-                    postoActionLog[postoId].push({
-                        action: 'Colocar etiqueta kanban no S A O',
-                        time: TIME_PLACE_KANBAN_LABEL,
-                        type: 'add',
-                        category: 'Base Time'
-                    });
-                }
-                const totalPostos = parseInt(numPostosSelect.value);
-                if (i < totalPostos) {
-                    baseTime += TIME_PASS_SAO;
-                    postoActionLog[postoId].push({
-                        action: 'Passar o pente entre os postos',
-                        time: TIME_PASS_SAO,
-                        type: 'add',
-                        category: 'Base Time'
-                    });
-                }
-                if (i === num) {
-                    baseTime += TIME_REMOVE_SAO_FROM_SUB;
-                    postoActionLog[postoId].push({
-                        action: 'Remover pente da sub e colocar na área de montagem',
-                        time: TIME_REMOVE_SAO_FROM_SUB,
-                        type: 'add',
-                        category: 'Base Time'
-                    });
-                }
-            } else {
-                 // Se o log já existe, recalcula o tempo base a partir dele
-                baseTime = postoActionLog[postoId]
-                               .filter(entry => entry.type === 'add' && entry.category === 'Base Time')
-                               .reduce((sum, entry) => sum + entry.time, 0);
+            }
+            baseTime += TIME_BARCODE_SCAN;
+            postoActionLog[postoId].push({
+                action: 'Realizar a leitura do código de barras do kanban',
+                time: TIME_BARCODE_SCAN,
+                type: 'add',
+                category: 'Base Time'
+            });
+            if (i === 1) {
+                baseTime += TIME_PLACE_KANBAN_LABEL;
+                postoActionLog[postoId].push({
+                    action: 'Colocar etiqueta kanban no S A O',
+                    time: TIME_PLACE_KANBAN_LABEL,
+                    type: 'add',
+                    category: 'Base Time'
+                });
+            }
+            const totalPostos = parseInt(numPostosSelect.value);
+            if (i < totalPostos) {
+                baseTime += TIME_PASS_SAO;
+                postoActionLog[postoId].push({
+                    action: 'Passar o pente entre os postos',
+                    time: TIME_PASS_SAO,
+                    type: 'add',
+                    category: 'Base Time'
+                });
+            }
+            if (i === num) {
+                baseTime += TIME_REMOVE_SAO_FROM_SUB;
+                postoActionLog[postoId].push({
+                    action: 'Remover pente da sub e colocar na área de montagem',
+                    time: TIME_REMOVE_SAO_FROM_SUB,
+                    type: 'add',
+                    category: 'Base Time'
+                });
             }
 
             postoTimes[postoId] = baseTime;
             updateProgressBar(postoId);
             addPostoDragDropListeners(postoContent);
 
-            // originalOtsByPosto[postoId] = new Set(); // ALTERAÇÃO: Não zera aqui, é populado pelo loadAppState ou updateOriginalOtsByPosto
+            originalOtsByPosto[postoId] = new Set();
         }
 
         if (reportArea) reportArea.innerHTML = '';
-        updateOriginalOtsByPosto(); // Garante que originalOtsByPosto está correto após a geração inicial ou restauração.
-        saveAppState(); // Salva o estado após gerar os postos (seja inicial ou após reset)
+        updateOriginalOtsByPosto();
+        saveAppState();
     }
 
     function generateConnectorPalette() {
@@ -1271,13 +1231,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupOtDragDropListeners() {
-        // ALTERAÇÃO: Popula otElementsMap com os elementos ATUAIS na paleta.
-        // Isso é crucial após carregar o HTML via innerHTML ou reconstruir a paleta.
-        otElementsMap.clear(); // Limpa o mapa antigo para evitar referências inválidas
-        document.querySelectorAll('.ot-palette .ot').forEach(ot => {
-            otElementsMap.set(ot.id, ot);
-
-            // Remove listeners existentes antes de adicionar para evitar duplicação
+        const ots = document.querySelectorAll('.ot-palette .ot');
+        ots.forEach(ot => {
             if (ot._dragStartListener) ot.removeEventListener('dragstart', ot._dragStartListener);
             if (ot._dragEndListener) ot.removeEventListener('dragend', ot._dragEndListener);
             if (ot._dragOverListener) ot.removeEventListener('dragover', ot._dragOverListener);
@@ -1308,50 +1263,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function syncOtPaletteVisibility() {
-        availableOts.clear(); // Limpa antes de repopular
+        availableOts.clear();
 
         const originalPaletteH2 = otPalette.querySelector('h2');
-        otPalette.innerHTML = ''; // Limpa a paleta para reconstruí-la
+        otPalette.innerHTML = '';
         if (originalPaletteH2) {
             otPalette.appendChild(originalPaletteH2);
         }
 
-        // ALTERAÇÃO: Certifica-se de que otGroupElementsMap está populado com referências válidas.
-        // Na inicialização, ele é populado uma vez. Se o HTML da paleta mudar drasticamente,
-        // ele precisaria ser repopulado. No seu caso, a paleta é estática, então o mapeamento inicial é suficiente.
-        // A lógica de clonagem aqui é para recriar as OTs na paleta.
-        // **AJUSTE PRINCIPAL:** Garante que o otGroupElementsMap seja populado apenas uma vez,
-        // geralmente na inicialização da aplicação, pois o HTML da paleta é estático.
-        // Se este bloco for executado repetidamente (por exemplo, dentro de reattachListeners),
-        // ele pode estar clonando o conteúdo original da paleta a cada vez.
-        // Mova a inicialização de otGroupElementsMap para o início do DOMContentLoaded
-        // e remova-o daqui. Para o propósito de "manter a lógica de save"
-        // e dado que a paleta é estática, o mapeamento inicial é o suficiente.
-        // No entanto, para garantir que os elementos estejam "frescos" após um carregamento de estado,
-        // vamos mantê-lo aqui, mas com a ressalva de que ele clona o HTML inicial da paleta.
-        if (otGroupElementsMap.size === 0) { // Se o mapa estiver vazio, popula-o (caso seja o primeiro carregamento)
-            document.querySelectorAll('.ot-palette .ot-group').forEach((group, index) => {
-                const groupId = `ot-group-${index}`;
-                group.id = groupId;
-                otGroupElementsMap.set(groupId, group);
-            });
-        }
-
-
         otGroupElementsMap.forEach(originalGroup => {
-            const clonedGroup = originalGroup.cloneNode(true); // Clona o grupo original
+            const clonedGroup = originalGroup.cloneNode(true);
             otPalette.appendChild(clonedGroup);
 
             const otsInClonedGroup = clonedGroup.querySelectorAll('.ot');
             otsInClonedGroup.forEach(ot => {
                 let isInUse = false;
-                // Itera sobre slotContents para ver se a OT está em uso em algum posto
                 for (const postoId in slotContents) {
                     for (const conectorId in slotContents[postoId]) {
                         for (const slotId in slotContents[postoId][conectorId]) {
                             const otData = slotContents[postoId][conectorId][slotId];
-                            // ALTERAÇÃO: Verifica se otData existe antes de acessar otId
-                            if (otData && otData.otId === ot.id && otData.isPropagated === false) {
+                            if (otData.otId === ot.id && otData.isPropagated === false) {
                                 isInUse = true;
                                 break;
                             }
@@ -1381,14 +1312,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        setupOtDragDropListeners(); // Reanexa listeners às OTs na paleta (recém-clonadas ou restauradas)
+        setupOtDragDropListeners();
     }
 
 
     function addOTDragDropToSlots() {
         const slots = document.querySelectorAll('.posto-container .conector .slot');
         slots.forEach(slot => {
-            // Remove listeners existentes antes de reanexar para evitar duplicação
             if (slot._dragOverListener) slot.removeEventListener('dragover', slot._dragOverListener);
             if (slot._dragEnterListener) slot.removeEventListener('dragenter', slot._dragEnterListener);
             if (slot._dragleaveListener) slot.removeEventListener('dragleave', slot._dragleaveListener);
@@ -1397,8 +1327,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             slot._dragOverListener = (e) => {
                 e.preventDefault();
-                // ALTERAÇÃO: Garante que draggedOt não é nulo e é da paleta, e que o slot está vazio
-                if (draggedOt && !slot.querySelector('.ot') && draggedOt.closest('#ot-palette') && availableOts.has(draggedOt.id)) {
+                if (draggedOt && !slot.querySelector('.ot') && draggedOt.closest('.ot-palette') && availableOts.has(draggedOt.id)) {
                     slot.classList.add('drag-over');
                     handleAutoScroll(e);
                 } else {
@@ -1409,7 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             slot._dragEnterListener = (e) => {
                 e.preventDefault();
-                if (draggedOt && !slot.querySelector('.ot') && draggedOt.closest('#ot-palette') && availableOts.has(draggedOt.id)) slot.classList.add('drag-over');
+                if (draggedOt && !slot.querySelector('.ot') && draggedOt.closest('.ot-palette') && availableOts.has(draggedOt.id)) slot.classList.add('drag-over');
             };
             slot.addEventListener('dragenter', slot._dragEnterListener);
 
@@ -1424,13 +1353,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 slot.classList.remove('drag-over');
                 stopAutoScroll();
 
-                // ALTERAÇÃO: Verifica novamente as condições antes de dropar
-                if (draggedOt && !slot.querySelector('.ot') && draggedOt.closest('#ot-palette') && availableOts.has(draggedOt.id)) {
+                if (draggedOt && !slot.querySelector('.ot') && draggedOt.closest('.ot-palette') && availableOts.has(draggedOt.id)) {
                     const otId = e.dataTransfer.getData('text/plain');
                     const droppedOtOriginalFromPalette = otElementsMap.get(otId);
 
                     if (!droppedOtOriginalFromPalette) {
-                        console.error(`Elemento original da OT ${otId} não encontrada no otElementsMap.`);
+                        console.error(`Elemento original da OT ${otId} não encontrada.`);
                         return;
                     }
 
@@ -1449,28 +1377,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const baseOtId = otId.endsWith('D') ? otId.slice(0, -1) : otId;
 
-                    let isOriginalForPacoPaco = false;
-                    const isSolderOt = SOLDER_OTS_SET.has(baseOtId);
+                    let isOriginalForPacoPaco = false; // Valor padrão
+                    const isSolderOt = SOLDER_OTS_SET.has(baseOtId); // Verifica se é uma OT de solda
                     const isSolderPosto = postoId === 'posto-solda-01';
 
-                    if (isSolderOt) {
-                        if (isSolderPosto) {
+                    if (isSolderOt) { // Se é uma OT de solda
+                        if (isSolderPosto) { // E está sendo dropada no Posto de Solda
                             if (!otOriginalOwners.hasOwnProperty(baseOtId)) {
-                                otOriginalOwners[baseOtId] = postoId;
+                                otOriginalOwners[baseOtId] = postoId; // Posto de Solda é o dono
                             }
-                            if (otOriginalOwners[baseOtId] === postoId) {
-                                isOriginalForPacoPaco = true;
+                            if (otOriginalOwners[baseOtId] === postoId) { // Confirma que o Posto de Solda é o dono
+                                isOriginalForPacoPaco = true; // É original para o Paco-Paco do Posto de Solda
                             }
-                        } else {
-                            isOriginalForPacoPaco = false;
+                        } else { // É OT de Solda, mas está sendo dropada em um Posto NUMÉRICO
+                            // Ela NUNCA é original para o Paco-Paco deste posto numérico.
+                            // E este posto numérico NUNCA pode se tornar seu dono.
+                            isOriginalForPacoPaco = false; // Permite a inserção, mas não aparece no Paco-Paco do posto numérico
+                            // Não alteramos otOriginalOwners aqui, garantindo que o posto numérico não se torne o dono.
                         }
-                    } else {
+                    } else { // Não é OT de Solda (é uma OT normal)
                         if (!otOriginalOwners.hasOwnProperty(baseOtId)) {
-                            otOriginalOwners[baseOtId] = postoId;
+                            otOriginalOwners[baseOtId] = postoId; // Este posto se torna o dono
                             isOriginalForPacoPaco = true;
                         } else if (otOriginalOwners[baseOtId] === postoId) {
-                            isOriginalForPacoPaco = true;
+                            isOriginalForPacoPaco = true; // Já é dono, continua original para Paco-Paco
                         } else {
+                            // OT normal, mas já tem dono em outro posto. Não é original para o Paco-Paco deste posto.
                             isOriginalForPacoPaco = false;
                         }
                     }
@@ -1509,13 +1441,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         slotId: slotId
                     });
 
-                    // Esconde a OT original da paleta
-                    if (droppedOtOriginalFromPalette) { // Garante que o elemento existe
+                    if (droppedOtOriginalFromPalette.parentNode) {
                         droppedOtOriginalFromPalette.style.display = 'none';
                         droppedOtOriginalFromPalette.draggable = false;
                         availableOts.delete(droppedOtOriginalFromPalette.id);
                     }
-                    syncOtPaletteVisibility(); // Atualiza a paleta de OTs após a OT ser usada
+                    syncOtPaletteVisibility();
 
                     propagateOt(postoId, conectorId, slotId, droppedOtOriginalFromPalette.id);
                     updateOriginalOtsByPosto();
@@ -1541,9 +1472,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     const otOriginalId = otData.otId;
                     const isPropagated = otData.isPropagated;
-                    // const isOriginalForPacoPaco = otData.isOriginalForPacoPaco; // Não usado na remoção diretamente
+                    const isOriginalForPacoPaco = otData.isOriginalForPacoPaco;
 
-                    if (!isPropagated) { // Só subtrai tempo se não for uma OT propagada
+                    if (!isPropagated) {
                         postoTimes[postoId] -= TIME_PER_OT;
                         updateProgressBar(postoId);
 
@@ -1558,10 +1489,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             slotId: slotId
                         });
 
-                        // Se a OT original estiver sendo removida, despropague as cópias
                         depropagateOt(postoId, conectorId, slotId, otOriginalId);
 
-                        // Torna a OT original visível e arrastável novamente na paleta
                         const otToReturn = otElementsMap.get(otOriginalId);
                         if (otToReturn) {
                             otToReturn.style.display = 'block';
@@ -1577,31 +1506,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 otToReturn.removeChild(paletteOtLabel);
                             }
                         }
-
-                        // ALTERAÇÃO: Se a OT original for removida, remova-a do otOriginalOwners
-                        const baseOtId = otOriginalId.endsWith('D') ? otOriginalId.slice(0, -1) : otOriginalId;
-                        if (otOriginalOwners[baseOtId] === postoId) {
-                            // Verifica se esta OT está sendo usada como original em mais algum slot deste posto
-                            let stillOriginalInThisPosto = false;
-                            if (slotContents[postoId]) {
-                                for (const connId in slotContents[postoId]) {
-                                    for (const sId in slotContents[postoId][connId]) {
-                                        const storedOt = slotContents[postoId][connId][sId];
-                                        if (storedOt.otId === otOriginalId && !storedOt.isPropagated && storedOt.isOriginalForPacoPaco === true) {
-                                            stillOriginalInThisPosto = true;
-                                            break;
-                                        }
-                                    }
-                                    if (stillOriginalInThisPosto) break;
-                                }
-                            }
-                            if (!stillOriginalInThisPosto) {
-                                delete otOriginalOwners[baseOtId];
-                            }
-                        }
                     } else {
                         // OT propagada: apenas remove do DOM/slotContents sem alterar tempo ou log.
-                        // Não afeta otOriginalOwners nem a visibilidade da OT na paleta.
                     }
                     parentSlot.removeChild(clickedOt);
                     const originLabelInSlot = parentSlot.querySelector('.origin-label');
@@ -1612,14 +1518,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (slotContents[postoId] && slotContents[postoId][conectorId]) {
                         delete slotContents[postoId][conectorId][slot.id];
-                        // Se não houver mais slots para este conector, remova o conector de slotContents
-                        if (Object.keys(slotContents[postoId][conectorId]).length === 0) {
-                            delete slotContents[postoId][conectorId];
-                        }
-                    }
-                    // Se não houver mais conectores para este posto, remova o posto de slotContents
-                    if (slotContents[postoId] && Object.keys(slotContents[postoId]).length === 0) {
-                        delete slotContents[postoId];
                     }
 
                     syncOtPaletteVisibility();
@@ -1724,8 +1622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (targetSlotElement && !targetSlotElement.querySelector('.ot')) {
                                 if (isPostoNumerado) {
                                     const postoSoldaRefId = 'posto-solda-01';
-                                    const postoSoldaElement = document.getElementById(postoSoldaRefId); // Obtenha a referência ao elemento
-                                    if (postoSoldaElement && slotContents[postoSoldaRefId]) {
+                                    if (slotContents[postoSoldaRefId]) {
                                         for (const prevConectorId in slotContents[postoSoldaRefId]) {
                                             const prevConectorElement = document.getElementById(prevConectorId);
                                             if (prevConectorElement && prevConectorElement.dataset.connectorType === newConnectorType) {
@@ -1769,8 +1666,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 if (!targetSlotElement.querySelector('.ot')) {
                                     for (let i = 1; i < currentPostoNumber; i++) {
                                         const prevPostoId = `posto-p${String(i).padStart(2, '0')}`;
-                                        const prevPostoElement = document.getElementById(prevPostoId); // Obtenha a referência ao elemento
-                                        if (prevPostoElement && slotContents[prevPostoId]) {
+                                        if (slotContents[prevPostoId]) {
                                             for (const prevConectorId in slotContents[prevPostoId]) {
                                                 const prevConectorElement = document.getElementById(prevConectorId);
                                                 if (prevConectorElement && prevConectorElement.dataset.connectorType === newConnectorType) {
@@ -1855,11 +1751,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 reportOutput += `<h4>Detalhes das Ações Atuais:</h4>`;
                 reportOutput += `<ul>`;
 
-                // Filtra apenas as ações de adição que contribuíram para o tempo atual
-                const currentPostoLog = (postoActionLog[postoId] || []);
+                const currentPostoLog = (postoActionLog[postoId] || []).filter(logEntry => logEntry.type === 'add');
 
                 if (currentPostoLog.length === 0 && postoTimes[postoId] === 0) {
-                    reportOutput += `<li>Nenhuma ação de tempo específica registrada.</li>`;
+                    reportOutput += `<li>Nenhuma ação de tempo específica registrada além dos tempos base.</li>`;
                 } else {
                     currentPostoLog.forEach(logEntry => {
                         const sign = logEntry.time >= 0 ? '+' : '';
@@ -1887,20 +1782,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             console.error("Erro: reportArea não encontrado ao limpar relatório.");
         }
-        clearSavedState(); // Limpa todo o localStorage e sessionStorage
-        // **AJUSTE PRINCIPAL:** Reinicializa as variáveis de estado para valores vazios APÓS limpar o localStorage
-        postoTimes = {};
-        connectorTypeCounts = {};
-        slotContents = {};
-        postoActionLog = {};
-        connectorInstanceAddTimes = {};
-        originalOtsByPosto = {};
-        otOriginalOwners = {};
-        availableOts = new Set(); // Também zera as OTs disponíveis
-
-        generatePostos(parseInt(numPostosSelect.value)); // Regenera os postos com o estado inicial
-        syncOtPaletteVisibility(); // Atualiza a paleta de OTs após o reset
-        console.log("Simulação, relatório e estado salvo limpos. Estado inicial gerado.");
+        clearSavedState();
+        generatePostos(parseInt(numPostosSelect.value));
+        console.log("Simulação, relatório e estado salvo limpos.");
         console.log("Função clearReportArea finalizada.");
     }
 
@@ -1910,18 +1794,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         gerarPostosBtn.addEventListener('click', () => {
             console.log("Botão 'Gerar Postos' clicado.");
-            // **AJUSTE PRINCIPAL:** Comportamento de reset total para "Gerar Postos"
-            clearSavedState(); // Limpa antes de gerar novos
-            postoTimes = {};
-            connectorTypeCounts = {};
-            slotContents = {};
-            postoActionLog = {};
-            connectorInstanceAddTimes = {};
-            originalOtsByPosto = {};
-            otOriginalOwners = {};
-            availableOts = new Set(); // Também zera as OTs disponíveis
             generatePostos(parseInt(numPostosSelect.value));
-            syncOtPaletteVisibility(); // Atualiza a paleta de OTs
         });
 
         taktTimeInput.addEventListener('change', () => {
@@ -1959,40 +1832,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Inicialização ---
     console.log("Iniciando a simulação...");
-    // ALTERAÇÃO: Inicialização dos mapas de elementos OT da paleta (estáticos)
-    // Isso deve ser feito UMA VEZ no início.
-    const initialOtsInPalette = document.querySelectorAll('.ot-palette .ot');
-    initialOtsInPalette.forEach(ot => {
-        initialOtOrder.push(ot.id); // Popula initialOtOrder se necessário para outras lógicas
+    const initialOts = document.querySelectorAll('.ot-palette .ot');
+    initialOts.forEach(ot => {
+        initialOtOrder.push(ot.id);
         otElementsMap.set(ot.id, ot);
     });
 
-    const initialOtGroupsInPalette = document.querySelectorAll('.ot-palette .ot-group');
-    initialOtGroupsInPalette.forEach((group, index) => {
+    const initialOtGroups = document.querySelectorAll('.ot-palette .ot-group');
+    initialOtGroups.forEach((group, index) => {
         const groupId = `ot-group-${index}`;
         group.id = groupId;
         otGroupElementsMap.set(groupId, group);
     });
 
-    generateConnectorPalette(); // A paleta de conectores é estática e pode ser gerada sempre.
-
     if (!loadAppState()) {
         console.log("Nenhum estado salvo encontrado ou erro ao carregar. Gerando estado inicial.");
-        // Se não carregou o estado, reseta as variáveis de estado para o início e depois gera os postos
-        postoTimes = {};
-        connectorTypeCounts = {};
-        slotContents = {};
-        postoActionLog = {};
-        connectorInstanceAddTimes = {};
-        originalOtsByPosto = {};
-        otOriginalOwners = {};
-        availableOts = new Set();
         generatePostos(parseInt(numPostosSelect.value));
-        syncOtPaletteVisibility(); // Garante que a paleta está correta após a geração inicial
+        generateConnectorPalette();
     } else {
         console.log("Estado salvo carregado com sucesso.");
-        // Se o estado foi carregado, reattachListeners já foi chamado, e as OTs foram sincronizadas.
-        // Nenhuma ação adicional é necessária aqui para geração de postos, pois o HTML já foi restaurado.
+        generateConnectorPalette();
     }
     console.log("Simulação inicializada.");
 });
