@@ -1827,7 +1827,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log("Listeners globais anexados com sucesso.");
     } catch (e) {
-        console.error("Erro ao anexar listeners globais:", e);
+        console.error("Erro ao antexar listeners globais:", e);
     }
 
     // --- Inicialização ---
