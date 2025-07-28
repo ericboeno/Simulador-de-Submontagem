@@ -125,7 +125,7 @@ h2 {
     display: flex;
     gap: 25px;
     width: 100%;
-    max-width: 95vw;
+    max-width: 100vw; /* ALTERADO: Removido o limite de 95vw para 100vw */
     background-color: #222;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
@@ -152,6 +152,11 @@ h2 {
     overflow-y: auto; /* Habilita a barra de rolagem interna */
 }
 
+/* NOVO: Remove a borda do painel direito */
+.right-panel {
+    border: none;
+}
+
 
 /* Regras para organizar as OTs em duplas/grupos */
 .ot-palette {
@@ -161,6 +166,15 @@ h2 {
     gap: 0; /* Remove o espaçamento global entre os itens, pois o .ot-group já lida com isso */
     align-content: flex-start;
 }
+/* NOVO: Estilo para o container de OTs dentro da paleta global do Paco-Paco */
+.paco-palette-ots-global-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que as OTs quebrem linha */
+    gap: 10px; /* Espaço entre as OTs */
+    justify-content: center; /* Centraliza as OTs */
+    padding: 10px 0;
+}
+
 
 .ot-group {
     display: flex; /* Habilita o Flexbox para organizar as OTs dentro do grupo */
@@ -428,7 +442,7 @@ h2 {
     width: 100%;
     height: 100%; /* Imagem ocupa 100% da área do conector */
     object-fit: contain;
-    position: absolute; /* Posiciona a imagem como background */
+    position: absolute;
     top: 0;
     left: 0;
     z-index: 1; /* Fica atrás de slots e checkbox */
@@ -901,21 +915,19 @@ h2 {
 
 
 /* NOVO: Estilos para a página Paco-Paco (paco-paco.html) */
-#paco-paco-postos-container {
-    display: flex;
-    flex-wrap: wrap; /* Permite que os blocos de posto quebrem linha */
-    gap: 30px;
-    width: 100%;
-    max-width: 95vw;
-    margin-top: 20px;
-    padding: 30px;
-    background-color: #222;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    justify-content: center; /* Centraliza os blocos de posto */
-    align-items: flex-start;
+/* A area de postos do Paco-Paco (center-panel e postos-area no paco-paco.html) usará os mesmos estilos da aba principal */
+#paco-paco-postos-container.postos-area { /* Adicionado .postos-area */
+    display: flex; /* Garante flexbox */
+    flex-wrap: wrap; /* Permite que os itens quebrem linha */
+    gap: 30px; /* Espaçamento entre os postos */
+    width: 100%; /* Ocupa toda a largura do seu pai (.center-panel) */
+    /* Removido max-width/margin-top/padding/background/box-shadow pois são controlados pelo .center-panel pai */
+    justify-content: flex-start; /* Alinha os itens ao início */
+    align-items: flex-start; /* Alinha os itens ao topo */
+    min-height: auto; /* Deixa a altura se ajustar ao conteúdo */
 }
 
+/* Estilo para cada seção de posto INDIVIDUAL (o "quadrante" do Paco-Paco) */
 .paco-posto-section {
     border: 1px solid var(--medium-gray);
     background-color: #333;
@@ -925,11 +937,26 @@ h2 {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    flex-basis: calc(50% - 15px); /* Ocupa cerca de metade da largura, com espaço entre */
-    max-width: calc(50% - 15px);
+    
+    /* Ajustes para aumentar o tamanho do quadrante */
+    flex-grow: 1; /* Permite que cresça para preencher o espaço disponível */
+    flex-basis: 95%; /* Tenta ocupar quase toda a largura disponível */
+    max-width: 100%; /* Permite que ocupe 100% se necessário */
+    min-width: 1300px; /* Mantém um mínimo grande para não encolher muito */
+    
     box-sizing: border-box; /* Inclui padding e border na largura */
-    min-width: 600px; /* Largura mínima para o posto completo do Paco-Paco */
+    min-height: 600px; /* Aumentado a altura mínima do quadrante */
 }
+
+/* Isso fará com que em telas grandes, tente duas colunas. Em telas menores, flex-basis: 100% fará uma coluna. */
+@media (min-width: 1500px) { /* Exemplo: Ajusta para telas muito grandes */
+    .paco-posto-section {
+        /* Para telas muito grandes, pode tentar alinhar 2 colunas */
+        max-width: calc(50% - 15px); /* Tenta 2 colunas com gap */
+        flex-basis: calc(50% - 15px); /* Garante que se ajustem em duas colunas */
+    }
+}
+
 
 .paco-posto-section h2 {
     color: var(--primary-red);
@@ -942,24 +969,62 @@ h2 {
 
 .paco-posto-content-wrapper {
     display: flex;
-    gap: 20px;
+    flex-direction: column; /* Alterado para empilhar controles e grid */
+    gap: 15px; /* Espaço entre controles e grid */
     width: 100%;
-    align-items: flex-start;
+    
+    /* NOVO: Permite que o wrapper do conteúdo cresça e preencha a altura restante */
+    flex-grow: 1;
 }
 
-.paco-paco-palette-local {
-    width: 180px; /* Largura fixa para a paleta de OTs do posto */
-    flex-shrink: 0;
-    border: 1px dashed #555;
+/* NOVO: Estilos para os controles de dimensão do Paco-Paco */
+.paco-grid-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    justify-content: center; /* Centraliza os controles */
+    width: 100%;
+}
+
+.paco-grid-controls label {
+    font-size: 0.9em;
+    color: var(--light-text);
+    font-weight: bold;
+}
+
+.paco-grid-controls input[type="number"] {
+    width: 60px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    border: 1px solid #555;
     background-color: #2a2a2a;
-    padding: 10px;
-    border-radius: 8px;
-    max-height: 400px; /* Altura máxima para a paleta com scroll */
-    overflow-y: auto;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    color: var(--light-text);
+    font-size: 0.9em;
+    text-align: center;
 }
 
-.paco-paco-palette-local h3 {
+.paco-grid-controls button {
+    padding: 6px 12px;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--primary-red);
+    color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.paco-grid-controls button:hover {
+    background-color: var(--secondary-red);
+}
+
+
+/* REMOVIDO: .paco-paco-palette-local não existe mais como paleta individual */
+/* Se você quiser uma paleta local para cada posto no futuro, precisará recriar e reestilizar. */
+
+.paco-paco-palette-local h3 { /* Mantido para não quebrar se algo usar, mas não é mais a paleta principal */
     color: var(--light-text);
     margin-top: 0;
     margin-bottom: 10px;
@@ -967,48 +1032,59 @@ h2 {
     text-align: center;
 }
 
-.paco-palette-ots {
+.paco-palette-ots { /* Mantido para não quebrar se algo usar, mas não é mais a paleta principal */
     display: flex;
     flex-wrap: wrap; /* Permite que as OTs quebrem linha na paleta */
     gap: 10px;
     justify-content: center;
 }
 
+/* Estilo para as OTs na paleta GLOBAL do Paco-Paco */
 .paco-ot-draggable {
-    width: 50px;
-    height: 50px;
-    border: 2px solid transparent;
-    border-radius: 5px;
+    width: 80px; /* Mantido o tamanho da OT na paleta global */
+    height: 80px; /* Mantido o tamanho da OT na paleta global */
+    border-radius: 8px;
     cursor: grab;
-    transition: border-color 0.15s, transform 0.15s;
+    border: 2px solid transparent; /* Adicionado border para hover */
+    transition: transform 0.15s ease-in-out, border-color 0.2s, box-shadow 0.2s;
     object-fit: contain;
     background-color: #3a3a3a;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.paco-ot-draggable:hover {
-    border-color: var(--primary-red);
-    transform: translateY(-2px);
+.paco-ot-draggable:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .paco-ot-draggable.dragging {
     opacity: 0.6;
     border-color: var(--primary-red);
     box-shadow: 0 4px 8px rgba(var(--primary-red-rgb), 0.3);
+    transform: scale(0.95);
+}
+
+.paco-ot-draggable:hover {
+    border-color: var(--primary-red);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
 }
 
 .paco-paco-grid-area-local {
-    flex-grow: 1;
+    flex-grow: 1; /* NOVO: Faz o grid crescer e preencher o espaço restante */
     border: 2px dashed var(--primary-red);
     background-color: #2a2a2a;
-    padding: 10px;
+    padding: 5px; /* Aumentado o padding interno do grid */
     border-radius: 8px;
     display: grid;
     /* grid-template-columns e grid-template-rows definidos no JS */
-    gap: 3px; /* Espaço entre as cavidades */
+    gap: 8px; /* Aumentado ainda mais o espaçamento entre slots */
     box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
     overflow: auto; /* Rolagem se o grid for muito grande */
-    min-width: 400px; /* Largura mínima para o grid de 10 colunas x 40px */
+    
+    /* A altura mínima será controlada pelo número de linhas e a altura de cada linha no JS */
+    /* Removido min-height fixo daqui, pois agora ele crescerá flexivelmente */
 }
 
 .paco-paco-cavity-local {
@@ -1020,6 +1096,7 @@ h2 {
     border-radius: 3px;
     transition: background-color 0.1s, border-color 0.1s;
     box-sizing: border-box;
+    /* Remover width/height fixos para que o tamanho seja ditado pelo grid-template-columns/rows */
 }
 
 .paco-paco-cavity-local.drag-over {
@@ -1033,17 +1110,35 @@ h2 {
     border-color: #28a745;
 }
 
+/* Estilo para as OTs dentro das cavidades do Paco-Paco */
 .paco-ot-in-cavity {
-    width: 90%;
-    height: 90%;
+    width: 90%; /* OT preenche 90% do slot */
+    height: 90%; /* OT preenche 90% do slot */
     object-fit: contain;
     cursor: pointer; /* Permite clicar para remover */
+    /* Garante que o arrasto funcione a partir da imagem na cavidade */
+    transition: opacity 0.2s, transform 0.2s; 
+}
+/* Estilos para quando a OT dentro da cavidade é arrastada */
+.paco-ot-in-cavity.dragging {
+    opacity: 0.7;
+    transform: scale(0.9);
 }
 
 @media (max-width: 1200px) {
     .paco-posto-section {
         flex-basis: 100%; /* Em telas menores, ocupa a largura total */
         max-width: 100%;
+        min-width: unset; /* Remove min-width fixo em telas menores */
+    }
+    .main-layout-container {
+        flex-direction: column; /* Empilha os painéis em telas menores */
+        align-items: center;
+    }
+    .left-panel {
+        position: static; /* Remove sticky em telas menores */
+        max-height: unset; /* Remove max-height fixo */
+        width: 100%; /* Ocupa largura total */
     }
 }
 
@@ -1057,8 +1152,8 @@ h2 {
     position: absolute;
     top: 2px;
     left: 2px;
-    font-size: 0.6em; /* Tamanho da fonte para caber */
-    color: rgba(255, 255, 255, 0.6); /* Cor suave */
+    font-size: 1em; /* AUMENTADO: Tamanho da fonte da legenda da cavidade */
+    color: rgba(255, 255, 255, 0.9); /* AUMENTADO: Cor da fonte mais forte */
     font-weight: bold;
     z-index: 5; /* Garante que a legenda fique acima da OT */
     pointer-events: none; /* Não interfere com cliques/arrastes */
