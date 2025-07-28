@@ -393,6 +393,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 syncOtPaletteVisibility();
                 console.log("Estado da simulação carregado com sucesso!");
+
+                // Salvar allOtIds no sessionStorage ao carregar o estado
+                sessionStorage.setItem('allOtIds', JSON.stringify(Array.from(initialOtOrder)));
+                
+                // Recriar e salvar otElementsMap no sessionStorage
+                const tempOtElementsMap = {};
+                otElementsMap.forEach((value, key) => {
+                    tempOtElementsMap[key] = value.outerHTML;
+                });
+                sessionStorage.setItem('otElementsMapHTML', JSON.stringify(tempOtElementsMap));
+
+
                 return true;
             }
             return false;
@@ -405,6 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function clearSavedState() {
         localStorage.clear();
+        sessionStorage.clear(); // Limpa também o sessionStorage
         console.log("Estado salvo limpo.");
     }
 
@@ -641,7 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const originLabel = document.createElement('span');
                     originLabel.classList.add('origin-label');
-                    originLabel.textContent = sourcePostoId.startsWith('posto-p') ? `P${sourcePostoNumber}` : postoId; // Changed to postoId
+                    originLabel.textContent = sourcePostoId.startsWith('posto-p') ? `P${sourcePostoNumber}` : postoSoldaId.replace('posto-', ''); // Changed to postoId
                     targetSlot.appendChild(originLabel);
 
                     const targetConectorId = targetConectorElement.id;
@@ -786,6 +799,7 @@ document.addEventListener('DOMContentLoaded', () => {
             otsByPostoForSessionStorage[postoId] = Array.from(originalOtsByPosto[postoId]);
         }
         sessionStorage.setItem('allOriginalOtsByPosto', JSON.stringify(otsByPostoForSessionStorage));
+        sessionStorage.setItem('otOriginalOwners', JSON.stringify(Object.fromEntries(Object.entries(otOriginalOwners).map(([key, value]) => [key, value]))));
         console.log("OTs originais por posto atualizadas para a nova aba:", otsByPostoForSessionStorage);
     }
 
@@ -887,6 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isChecked = e.target.checked;
                 let timeChange = 0;
                 let actionDescription = "";
+                const type = conectorDiv.dataset.connectorType;
 
                 if (isChecked) {
                     timeChange += TIME_LOCK_CONNECTOR;
@@ -1195,6 +1210,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (reportArea) reportArea.innerHTML = '';
         updateOriginalOtsByPosto();
         saveAppState();
+
+        // Salvar allOtIds no sessionStorage quando os postos são gerados
+        sessionStorage.setItem('allOtIds', JSON.stringify(Array.from(initialOtOrder)));
+        // Recriar e salvar otElementsMap no sessionStorage
+        const tempOtElementsMap = {};
+        otElementsMap.forEach((value, key) => {
+            tempOtElementsMap[key] = value.outerHTML;
+        });
+        sessionStorage.setItem('otElementsMapHTML', JSON.stringify(tempOtElementsMap));
     }
 
     function generateConnectorPalette() {
@@ -1814,7 +1838,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         goToPacoPacoBtn.addEventListener('click', () => {
             console.log("Botão 'Ir para Paco-Paco' clicado.");
-            sessionStorage.removeItem('selectedPacoPostoIdForTab');
+            sessionStorage.removeItem('selectedPacoPostoIdForTab'); // This might be for a different flow, keeping it for now.
+            updateOriginalOtsByPosto(); // Ensure latest data is saved
+
+            // Salvar allOtIds no sessionStorage quando os postos são gerados
+            sessionStorage.setItem('allOtIds', JSON.stringify(Array.from(initialOtOrder)));
+            // Recriar e salvar otElementsMap no sessionStorage
+            const tempOtElementsMap = {};
+            otElementsMap.forEach((value, key) => {
+                tempOtElementsMap[key] = value.outerHTML;
+            });
+            sessionStorage.setItem('otElementsMapHTML', JSON.stringify(tempOtElementsMap));
+
             window.open('paco-paco.html', '_blank');
         });
 
