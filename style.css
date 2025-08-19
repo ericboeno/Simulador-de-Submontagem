@@ -1157,5 +1157,5 @@ h2 {
     color: rgba(255, 255, 255, 0.9); /* AUMENTADO: Cor da fonte mais forte */
     font-weight: bold;
     z-index: 5; /* Garante que a legenda fique acima da OT */
-    pointer-events: none; /* Não interfere com cliques/arrastes */
+    pointer-events: none; /* Não interfere com cliques/arrastes * revisão
 }
